@@ -1,4 +1,5 @@
 from resources.hotel import Hoteis, Hotel
+from resources.airbnb import Airbnb, AirbnbList
 from flask import Flask
 from flask_restful import Api
 
@@ -8,7 +9,10 @@ api = Api(app)
 
 
 api.add_resource(Hoteis, '/hoteis')
+api.add_resource(AirbnbList, '/airbnbList')
 api.add_resource(Hotel, '/hoteis/<string:hotel_id>')
+api.add_resource(Airbnb, '/airbnb/<string:airbnb_id>')
+
 
 
 
