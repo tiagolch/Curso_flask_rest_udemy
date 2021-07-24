@@ -25,7 +25,7 @@ class Airbnb(Resource):
     parser.add_argument('country')
     parser.add_argument('price')
     
-    def find_airbnb(self, airbnb_id):
+    def find_airbnb(airbnb_id):
         for air in airbnb:
             if air['airbnb_id'] == airbnb_id:
                 return air
@@ -42,7 +42,7 @@ class Airbnb(Resource):
         data = Airbnb.parser.parse_args()
 
         for air in airbnb:
-            if airbnb_id == air['airbnb_id']:
+            if air['airbnb_id'] == airbnb_id:
                 return {'message': f'Airbnb {airbnb_id} already exists'}, 400
 
         object_airbnb = AirbnbModel(airbnb_id, **data)
@@ -70,7 +70,7 @@ class Airbnb(Resource):
     def delete(self, airbnb_id):
         air = Airbnb.find_airbnb(airbnb_id)
         if air:
-            airbnb.remove(airbnb)
+            airbnb.remove(air)
             return {'message': f'Airbnb {airbnb_id} deleted'}, 200
         return {'message': f'Airbnb {airbnb_id} not found'}, 404
 
