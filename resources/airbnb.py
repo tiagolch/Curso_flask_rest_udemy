@@ -32,8 +32,8 @@ class Airbnb(Resource):
         return None
 
 
-    def get(self, aibnb_id):
-        airbnb = self.find_airbnb(aibnb_id)  
+    def get(self, airbnb_id):
+        airbnb = Airbnb.find_airbnb(airbnb_id)  
         if airbnb:
             return airbnb
         return {'message': 'Airbnb not found'}, 404      
