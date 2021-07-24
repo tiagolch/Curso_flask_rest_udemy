@@ -27,7 +27,7 @@ class Airbnb(Resource):
     
     def find_airbnb(self, airbnb_id):
         for air in airbnb:
-            if air['aibnb_id'] == airbnb_id:
+            if air['airbnb_id'] == airbnb_id:
                 return air
         return None
 
@@ -38,11 +38,11 @@ class Airbnb(Resource):
             return airbnb
         return {'message': 'Airbnb not found'}, 404      
 
-    def post(self, aibnb_id):
+    def post(self, airbnb_id):
         data = Airbnb.parser.parse_args()
 
         for air in airbnb:
-            if aibnb_id == air['aibnb_id']:
+            if airbnb_id == air['airbnb_id']:
                 return {'message': f'Airbnb {airbnb_id} already exists'}, 400
 
         object_airbnb = AirbnbModel(airbnb_id, **data)
