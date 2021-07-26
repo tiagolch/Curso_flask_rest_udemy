@@ -34,18 +34,13 @@ class Hotel(Resource):
         
     
     def post(self, hotel_id):
+        if HotelModel.find_hotel(hotel_id):
+            return {'message': f'Hotel id {hotel_id} already exists.'}, 400
 
         data = Hotel.parser.parse_args()
-
-        for hotel in hoteis:
-            if hotel['hotel_id'] == hotel_id:
-                return {'erro': f'hotel_id {hotel_id} ja utilizado'}, 400
-
-        object_hotel = HotelModel(hotel_id, **data)     
-        new_hotel = object_hotel.json()
-
-        hoteis.append(new_hotel)
-        return {'hoteis': hoteis}, 200
+        hotel = HotelModel(hotel_id, **data) 
+        hotel.save_hotel()
+        return hotel.json(), 201
 
 
     def put(self, hotel_id):
