@@ -58,10 +58,10 @@ class Airbnb(Resource):
         object_airbnb = AirbnbModel(airbnb_id, **data)
         updated_airbnb = object_airbnb.json()
 
-        airbnb =  Airbnb.find_airbnb(airbnb_id)
+        airbnb_located =  Airbnb.find_airbnb(airbnb_id)
 
-        if airbnb:
-            airbnb.update(updated_airbnb)
+        if airbnb_located:
+            airbnb_located.update(updated_airbnb)
             return updated_airbnb, 200
         airbnb.append(updated_airbnb)
         return updated_airbnb, 201
