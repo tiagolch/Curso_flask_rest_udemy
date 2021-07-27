@@ -1,4 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
+from sql_alchemy import db
 
 class UserModel(db.Model):
     __tablename__ = 'users'
@@ -35,6 +35,6 @@ class UserModel(db.Model):
         self.login = login
         self.password = password
   
-    def delete_hotel(self):
+    def delete_user(self):
         db.session.delete(self)
         db.session.commit()

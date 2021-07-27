@@ -20,8 +20,8 @@ api.add_resource(Hoteis, '/hoteis')
 api.add_resource(AirbnbList, '/airbnbList')
 api.add_resource(Hotel, '/hoteis/<string:hotel_id>')
 api.add_resource(Airbnb, '/airbnb/<string:airbnb_id>')
-api.add_resource(Usuario, '/users')
-api.add_resource(Usuarios, '/users/<int:user_id>')
+api.add_resource(Usuarios, '/users')
+api.add_resource(Usuario, '/user/<int:user_id>')
 
 
 

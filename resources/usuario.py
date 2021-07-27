@@ -1,6 +1,6 @@
 from models.usuario import UserModel
 from flask_restful import Resource, reqparse
-from models.hotel import Usuario
+
 
 
 class Usuarios(Resource):
@@ -10,11 +10,11 @@ class Usuarios(Resource):
 
 class Usuario(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('username', type=str, required=True, help='This field cannot be blank')
+    parser.add_argument('login', type=str, required=True, help='This field cannot be blank')
     parser.add_argument('password', type=str, required=True, help='This field cannot be blank')
 
     def get(self, user_id):
-        user_located = UserModel.find_by_id(user_id)
+        user_located = UserModel.find_user(user_id)
         if user_located:
             return user_located.json(), 200
         return {'message': 'Usuario não encontrado'}, 404
@@ -37,12 +37,15 @@ class Usuario(Resource):
 
         user_located = UserModel.find_user(user_id)
         if user_located:
-            user_located.username = data['username']
-            user_located.password = data['password']
-        else:
-            user = UserModel(user_id, **data)
-        user.save_user()
-        return user.json()
+            user_located.update_user(**data)
+            user_located.save_user()
+            return user_located.json(), 200
+        user = UserModel(user_id, **data)
+        try:
+            user.save_user()
+        except:
+            return {'message': 'Ocorreu um erro ao tentar cadastrar o usuário'}, 500
+        return user.json(), 201
 
     def delete(self, user_id):
         user_located = UserModel.find_user(user_id)
@@ -53,3 +56,4 @@ class Usuario(Resource):
                 return {'message': 'Ocorreu um erro ao tentar deletar o usuário'}, 500
             return {'message': 'Usuario deletado'}, 200
         return {'message': 'Usuario não encontrado'}, 404
+        
