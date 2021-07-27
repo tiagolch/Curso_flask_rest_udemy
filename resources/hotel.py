@@ -2,34 +2,21 @@ from flask_restful import Resource, reqparse
 from models.hotel import HotelModel
 
 
-hoteis = [
-    {'hotel_id': 'Alpha', 'nome': 'Alpha Hotel', 'endereco': 'Rua Alpha, 100'},
-    {'hotel_id': 'Bravo', 'nome': 'Bravo Hotel', 'endereco': 'Rua Bravo, 200'},
-    {'hotel_id': 'Charlie', 'nome': 'Charlie Hotel', 'endereco': 'Rua Charlie, 300'},
-]
-
-
 class Hoteis(Resource):
     def get(self):
-        return {'hoteis': hoteis}
+        return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]}
 
 class Hotel(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('nome')
-    parser.add_argument('endereco')
+    parser.add_argument('nome', type=str, required=True, help='Nome do hotel')
+    parser.add_argument('endereco', type=str, required=True, help='Endereco do hotel')
 
-
-    def find_hotel(hotel_id):
-        for hotel in hoteis:
-            if hotel['hotel_id'] == hotel_id:
-                return hotel
-        return None
 
 
     def get(self, hotel_id):
-        hotel = HotelModel.find_hotel(hotel_id)
-        if hotel:
-            return hotel.json(), 200
+        hotel_located = HotelModel.find_hotel(hotel_id)
+        if hotel_located:
+            return hotel_located.json(), 200
         return {'erro': 'hotel_id nao encontrado'}, 404
         
     
@@ -39,7 +26,10 @@ class Hotel(Resource):
 
         data = Hotel.parser.parse_args()
         hotel = HotelModel(hotel_id, **data) 
-        hotel.save_hotel()
+        try:
+            hotel.save_hotel()
+        except:
+            return {'message': 'An error occurred inserting the hotel.'}, 500
         return hotel.json(), 201
 
 
@@ -53,14 +43,20 @@ class Hotel(Resource):
             hotel_located.save_hotel()
             return hotel_located.json(), 200
         hotel = HotelModel(hotel_id, **data)    
-        hotel.save_hotel() 
+        try:
+            hotel.save_hotel()
+        except:
+            return {'message': 'An error occurred updated the hotel.'}, 500
         return hotel.json(), 201
         
 
     def delete(self, hotel_id):
-        hotel = Hotel.find_hotel(hotel_id)
-        if hotel:
-            hoteis.remove(hotel)
-            return {'hoteis': hoteis}, 200
+        hotel_located = HotelModel.find_hotel(hotel_id)
+        if hotel_located:
+            try:
+                hotel_located.delete_hotel()
+            except:
+                return {'message': 'An error occurred deleting the hotel.'}, 500
+            return {'message': 'Hotel deleted'}, 200
         return {'erro': f'hotel_id {hotel_id} nao encontrado'}, 404
 

@@ -34,3 +34,7 @@ class HotelModel(db.Model):
     def update_hotel(self, nome, endereco):
         self.nome = nome
         self.endereco = endereco
+
+    def delete_hotel(self):
+        db.session.delete(self)
+        db.session.commit()
