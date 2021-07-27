@@ -2,20 +2,9 @@ from flask_restful import Resource, reqparse
 from models.airbnb import AirbnbModel
 
 
-airbnb = [
-    {
-        'airbnb_id':'casa1', 
-        'city':'Rio de Janeiro', 
-        'state':'RJ', 
-        'country':'Brasil',
-        'price':120
-    },
-]
-
-
 class AirbnbList(Resource):
     def get(self):
-        return {'airbnb': airbnb}
+        return {'airbnb': [airbnb.json() for airbnb in AirbnbModel.query.all()]}
 
 
 class Airbnb(Resource):
@@ -25,61 +14,51 @@ class Airbnb(Resource):
     parser.add_argument('country')
     parser.add_argument('price')
     
-    def find_airbnb(airbnb_id):
-        for air in airbnb:
-            if air['airbnb_id'] == airbnb_id:
-                return air
-        return None
 
 
     def get(self, airbnb_id):
-        airbnb = Airbnb.find_airbnb(airbnb_id)  
-        if airbnb:
-            return airbnb
+        airbnb_located = AirbnbModel.find_airbnb(airbnb_id)  
+        if airbnb_located:
+            return airbnb_located.json(), 200
         return {'message': 'Airbnb not found'}, 404      
 
     def post(self, airbnb_id):
-        data = Airbnb.parser.parse_args()
+        if AirbnbModel.find_airbnb(airbnb_id):
+            return {'message': f'Airbnb {airbnb_id} already exists'}, 400
 
-        for air in airbnb:
-            if air['airbnb_id'] == airbnb_id:
-                return {'message': f'Airbnb {airbnb_id} already exists'}, 400
-
-        object_airbnb = AirbnbModel(airbnb_id, **data)
-        new_airbnb = object_airbnb.json()
-
-        airbnb.append(new_airbnb)
-        return {'airbnb': airbnb}, 200
+        data = Airbnb.parser.parse_args()       
+        airbnb = AirbnbModel(airbnb_id, **data)
+        try:
+            airbnb.save_airbnb()
+        except:
+            return {'message': 'An error occurred inserting the airbnb'}, 500
+        return airbnb.json(), 201
         
 
     def put(self, airbnb_id):
+
         data = Airbnb.parser.parse_args()
 
-        object_airbnb = AirbnbModel(airbnb_id, **data)
-        updated_airbnb = object_airbnb.json()
-
-        airbnb_located =  Airbnb.find_airbnb(airbnb_id)
-
+        airbnb_located =  AirbnbModel.find_airbnb(airbnb_id)
         if airbnb_located:
-            airbnb_located.update(updated_airbnb)
-            return updated_airbnb, 200
-        airbnb.append(updated_airbnb)
-        return updated_airbnb, 201
+            airbnb_located.update_airbnb(**data)
+            airbnb_located.save_airbnb()
+            return airbnb_located.json(), 200
+        airbnb = AirbnbModel(airbnb_id, **data)
+        try:
+            airbnb.save_airbnb()
+        except:
+            return {'message': 'An error occurred inserting the airbnb'}, 500
+        return airbnb.json(), 201
 
 
     def delete(self, airbnb_id):
-        air = Airbnb.find_airbnb(airbnb_id)
-        if air:
-            airbnb.remove(air)
-            return {'message': f'Airbnb {airbnb_id} deleted'}, 200
-        return {'message': f'Airbnb {airbnb_id} not found'}, 404
-
-
-
-
-
-
-
-
-
+        airbnb_located = AirbnbModel.find_airbnb(airbnb_id)
+        if airbnb_located:
+            try:
+                airbnb_located.delete_airbnb()
+            except:
+                return {'message': 'An error occurred deleting the airbnb'}, 500
+            return {'message': 'Airbnb deleted'}, 200
+        return {'message': 'Airbnb not found'}, 404
 
